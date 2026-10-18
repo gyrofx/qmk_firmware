@@ -1,0 +1,247 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>gyrofx-mmlp Column Wiring</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;600&family=IBM+Plex+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: back-of-board diagram in photo orientation on the left, column checklist on the right; stacks on phones. */
+:root {
+  --bg: #f6f5f0;
+  --panel: #ffffff;
+  --fg: #23211c;
+  --muted: #6f6a5c;
+  --line: #ddd8c8;
+  --plate: #f2c418;
+  --plate-edge: #c99e00;
+  --switch: #b3261e;
+  --switch-fg: #fff3ee;
+  --rowwire: #8a8a8a;
+  --font-body: "IBM Plex Sans", system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #17160f; --panel: #211f17; --fg: #ece8da; --muted: #a39d89; --line: #3a372b;
+  --plate: #8f740b; --plate-edge: #b8960f; --switch: #a3241d; --switch-fg: #fff3ee; --rowwire: #b5b5b5; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #17160f; --panel: #211f17; --fg: #ece8da; --muted: #a39d89; --line: #3a372b;
+  --plate: #8f740b; --plate-edge: #b8960f; --switch: #a3241d; --switch-fg: #fff3ee; --rowwire: #b5b5b5; color-scheme: dark }
+body { background: var(--bg); color: var(--fg); font-family: var(--font-body); font-size: 15px; line-height: 1.5; }
+.wrap { max-width: 1100px; margin: 0 auto; padding: 24px 16px 48px; display: grid; gap: 20px; }
+h1 { font-size: 1.6rem; margin: 0; text-wrap: balance; }
+.lede { color: var(--muted); margin: 4px 0 0; max-width: 65ch; }
+.grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 20px; align-items: start; }
+@media (max-width: 820px) { .grid { grid-template-columns: minmax(0,1fr); } }
+.card { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 16px; min-width: 0; }
+.diagram { overflow-x: auto; }
+svg { display: block; width: 100%; height: auto; max-width: 460px; margin: 0 auto; }
+svg text { font-family: var(--font-mono); }
+.label { font-size: .72rem; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); font-weight: 600; margin: 0 0 8px; }
+.cols { display: grid; gap: 6px; }
+.col { display: grid; grid-template-columns: auto 3.2rem 3.4rem minmax(0,1fr); gap: 10px; align-items: center; padding: 6px 8px; border-radius: 6px; border: 1px solid transparent; cursor: pointer; font-variant-numeric: tabular-nums; }
+.col:hover, .col:focus-visible { border-color: var(--line); outline: none; }
+.col.active { border-color: var(--fg); }
+.col.done .keys, .col.done .pin { text-decoration: line-through; color: var(--muted); }
+.sw { width: 14px; height: 14px; border-radius: 3px; }
+.cn, .pin { font-family: var(--font-mono); font-size: .85rem; }
+.pin { font-weight: 600; }
+.keys { font-size: .88rem; min-width: 0; }
+.col input { margin: 0; }
+.steps { margin: 0; padding-left: 1.2em; display: grid; gap: 6px; max-width: 65ch; }
+.rows { font-family: var(--font-mono); font-size: .85rem; display: flex; flex-wrap: wrap; gap: 6px 16px; }
+.note { color: var(--muted); font-size: .85rem; margin: 8px 0 0; }
+.pico { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); gap: 20px; align-items: start; }
+@media (max-width: 820px) { .pico { grid-template-columns: minmax(0,1fr); } }
+.picotext { min-width: 0; }
+.pt { border-collapse: collapse; width: 100%; font-variant-numeric: tabular-nums; font-size: .88rem; }
+.pt th { text-align: left; font-size: .72rem; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); padding: 4px 8px; border-bottom: 1px solid var(--line); }
+.pt td { padding: 4px 8px; border-bottom: 1px solid var(--line); }
+.pt td:nth-child(-n+2) { font-family: var(--font-mono); }
+.reset { font: inherit; font-size: .8rem; background: none; border: 1px solid var(--line); color: var(--muted); border-radius: 6px; padding: 2px 10px; cursor: pointer; }
+@media print {
+  @page { size: A4 portrait; margin: 10mm; }
+  :root { --bg: #fff; --panel: #fff; }
+  body { -webkit-print-color-adjust: exact; print-color-adjust: exact; font-size: 12px; }
+  .wrap { padding: 0; gap: 0; max-width: none; }
+  .grid, .pico { display: block; }
+  .card { border: none; padding: 0; break-inside: avoid; page-break-inside: avoid; }
+  .card { break-before: page; page-break-before: always; }
+  .grid > .card:first-child, .wrap > .card:last-child { break-before: auto; page-break-before: auto; }
+  .wrap > .card:last-child { margin-top: 8mm; }
+  .diagram { overflow: visible; }
+  svg { width: auto; max-width: 100%; max-height: 245mm; }
+  #pico { max-height: 105mm; }
+  .pt td { padding: 2px 8px; }
+  .reset, .note:first-of-type { display: none; }
+}
+</style>
+
+<div class="wrap">
+  <header>
+    <h1>gyrofx-mmlp column wiring</h1>
+    <p class="lede">Back of the board, turned the same way as your photo: spacebar row on the left, number row on the right, Del/Home/PgUp end at the top. Rows and diodes are done. Each colored line is one column wire to solder. Controller: Raspberry Pi Pico.</p>
+  </header>
+
+  <div class="grid">
+    <section class="card diagram" aria-label="Wiring diagram">
+      <svg id="svg" viewBox="0 0 400 760" role="img" aria-label="Back view of the 65% plate with 16 column wires"></svg>
+      <p class="note">Tap a column on the right to highlight its wire. Bold label = keycap legend (front side).</p>
+    </section>
+
+    <section class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:8px">
+        <p class="label">Columns · tick when soldered</p>
+        <button class="reset" id="reset" type="button">Clear ticks</button>
+      </div>
+      <div class="cols" id="cols"></div>
+      <p class="label" style="margin-top:16px">Row wires (already built)</p>
+      <div class="rows" id="rows"></div>
+    </section>
+  </div>
+
+  <section class="card">
+    <p class="label">Raspberry Pi Pico connections</p>
+    <div class="pico">
+      <div class="diagram"><svg id="pico" viewBox="0 0 420 600" role="img" aria-label="Raspberry Pi Pico pinout with keyboard wires"></svg></div>
+      <div class="picotext">
+        <p style="margin:0 0 8px">Pico seen from the top (chip side), USB at the top. Pin 1 is top-left, next to the USB port. The GP numbers are also printed on the <b>underside</b> of the Pico, which helps if you mount it face-down.</p>
+        <table class="pt"><thead><tr><th>Pin</th><th>GPIO</th><th>Wire</th></tr></thead><tbody id="picotable"></tbody></table>
+        <p class="note">GP7, GP8 and GP28/27/26 stay free. No GND or 3V3 wire is needed for the matrix: USB powers the Pico.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="card">
+    <p class="label">How to solder each column</p>
+    <ol class="steps">
+      <li>Every switch has two pins. One already has the diode. The column wire goes to the <b>other, free pin</b>, with no diode.</li>
+      <li>Column wires run across the photo, from left to right, and cross every row wire. Use <b>insulated wire</b>: strip a short window at each switch, or use enamelled wire and burn through at each joint.</li>
+      <li>Follow the switches listed for each column, even where the line jumps. For example, C1 joins <b>1</b>, <b>LShift</b> and <b>Win</b>, and skips the Tab and Caps rows.</li>
+      <li>Run the end of each column wire to the Pico pin shown (see the Pico pinout above; GP7 and GP8 are skipped). The five row wires go to GP18–GP22 on the right-hand side.</li>
+      <li>Check each column with a multimeter in continuity mode before moving on. It must not beep against any row wire.</li>
+    </ol>
+  </section>
+</div>
+
+<script>
+// [row, matrixCol, x, width, legend] from keyboards/0_gyrofx/mml/keyboard.json + default keymap
+const KEYS = [
+  [0,0,0,1,"Esc"],[0,1,1,1,"1"],[0,2,2,1,"2"],[0,3,3,1,"3"],[0,4,4,1,"4"],[0,5,5,1,"5"],[0,6,6,1,"6"],[0,7,7,1,"7"],[0,8,8,1,"8"],[0,9,9,1,"9"],[0,10,10,1,"0"],[0,11,11,1,"-"],[0,12,12,1,"="],[0,14,13,2,"Bksp"],[0,15,15,1,"Del"],
+  [1,0,0,1.5,"Tab"],[1,2,1.5,1,"Q"],[1,3,2.5,1,"W"],[1,4,3.5,1,"E"],[1,5,4.5,1,"R"],[1,6,5.5,1,"T"],[1,7,6.5,1,"Y"],[1,8,7.5,1,"U"],[1,9,8.5,1,"I"],[1,10,9.5,1,"O"],[1,11,10.5,1,"P"],[1,12,11.5,1,"["],[1,13,12.5,1,"]"],[1,14,13.5,1.5,"\\"],[1,15,15,1,"Home"],
+  [2,0,0,1.75,"Caps"],[2,2,1.75,1,"A"],[2,3,2.75,1,"S"],[2,4,3.75,1,"D"],[2,5,4.75,1,"F"],[2,6,5.75,1,"G"],[2,7,6.75,1,"H"],[2,8,7.75,1,"J"],[2,9,8.75,1,"K"],[2,10,9.75,1,"L"],[2,11,10.75,1,";"],[2,12,11.75,1,"'"],[2,13,12.75,2.25,"Enter"],[2,15,15,1,"PgUp"],
+  [3,1,0,2.25,"LShift"],[3,2,2.25,1,"Z"],[3,3,3.25,1,"X"],[3,4,4.25,1,"C"],[3,5,5.25,1,"V"],[3,6,6.25,1,"B"],[3,7,7.25,1,"N"],[3,8,8.25,1,"M"],[3,9,9.25,1,","],[3,10,10.25,1,"."],[3,11,11.25,1,"/"],[3,13,12.25,1.75,"RShift"],[3,14,14,1,"Up"],[3,15,15,1,"PgDn"],
+  [4,0,0,1.25,"Ctrl"],[4,1,1.25,1.25,"Win"],[4,3,2.5,1.25,"Alt"],[4,6,3.75,6.25,"Space"],[4,10,10,1,"AltGr"],[4,11,11,1,"Fn"],[4,12,12,1,"Ctrl"],[4,13,13,1,"Left"],[4,14,14,1,"Down"],[4,15,15,1,"Right"]
+];
+const COL_PINS = ["GP0","GP1","GP2","GP3","GP4","GP5","GP6","GP9","GP10","GP11","GP12","GP13","GP14","GP15","GP16","GP17"];
+const ROW_PINS = ["GP18","GP19","GP20","GP21","GP22"];
+const ROW_NAMES = ["numbers","Tab","Caps","Shift","Space"];
+const colColor = c => `hsl(${(c * 7 % 16) * 22.5} 75% 48%)`;
+
+// Geometry: photo x = keyboard row (row 4 left), photo y = keyboard x reversed (right edge on top)
+const U = 44, X0 = 40, Y0 = 30, PITCH = 68;
+const cx = r => X0 + (4 - r) * PITCH + U / 2;
+const ky = (x, w) => Y0 + (16 - x - w) * U;
+const pinPt = k => ({ x: cx(k[0]) + 12, y: ky(k[2], k[3]) + k[3] * U / 2 + 10 });
+
+const NS = "http://www.w3.org/2000/svg";
+const svg = document.getElementById("svg");
+const el = (t, a, p = svg) => { const e = document.createElementNS(NS, t); for (const k in a) e.setAttribute(k, a[k]); p.appendChild(e); return e; };
+
+el("rect", { x: 10, y: 8, width: 380, height: 16 * U + 50, rx: 8, fill: "var(--plate)", stroke: "var(--plate-edge)" });
+
+// Row wires
+for (let r = 0; r < 5; r++) {
+  const x = cx(r) - U / 2 - 6;
+  el("line", { x1: x, y1: Y0 - 6, x2: x, y2: Y0 + 16 * U + 4, stroke: "var(--rowwire)", "stroke-width": 2 });
+  const t = el("text", { x, y: Y0 + 16 * U + 20, "text-anchor": "middle", "font-size": 10, fill: "var(--fg)" });
+  t.textContent = ROW_PINS[r];
+}
+
+// Switches
+for (const k of KEYS) {
+  const [r, c, x, w, name] = k;
+  const y = ky(x, w);
+  if (w >= 2) el("rect", { x: cx(r) - U / 2 + 4, y: y + 3, width: U - 8, height: w * U - 6, rx: 4, fill: "none", stroke: "var(--plate-edge)", "stroke-dasharray": "3 3" });
+  const sy = y + w * U / 2 - (U - 8) / 2;
+  el("rect", { x: cx(r) - U / 2 + 4, y: sy, width: U - 8, height: U - 8, rx: 4, fill: "var(--switch)" });
+  const t = el("text", { x: cx(r), y: sy + 16, "text-anchor": "middle", "font-size": name.length > 3 ? 8.5 : 11, "font-weight": 600, fill: "var(--switch-fg)" });
+  t.textContent = name;
+  const n = el("text", { x: cx(r), y: sy + 30, "text-anchor": "middle", "font-size": 8.5, fill: "var(--switch-fg)", opacity: .85 });
+  n.textContent = "C" + c;
+}
+
+// Column wires
+const wires = [];
+for (let c = 0; c < 16; c++) {
+  const pts = KEYS.filter(k => k[1] === c).sort((a, b) => b[0] - a[0]).map(pinPt);
+  const g = el("g", { "data-col": c });
+  const last = pts[pts.length - 1];
+  const d = pts.map(p => `${p.x},${p.y}`).join(" ") + ` ${last.x + 30},${last.y}`;
+  el("polyline", { points: d, fill: "none", stroke: colColor(c), "stroke-width": 3, "stroke-linejoin": "round", "stroke-linecap": "round" }, g);
+  for (const p of pts) el("circle", { cx: p.x, cy: p.y, r: 3.5, fill: colColor(c), stroke: "var(--panel)", "stroke-width": 1 }, g);
+  const t = el("text", { x: last.x + 34, y: last.y + 3.5, "font-size": 10, "font-weight": 600, fill: colColor(c) }, g);
+  t.textContent = COL_PINS[c];
+  wires.push(g);
+}
+
+// Checklist
+let done = {};
+try { done = JSON.parse(localStorage.getItem("mmlp-done") || "{}"); } catch (e) {}
+const save = () => { try { localStorage.setItem("mmlp-done", JSON.stringify(done)); } catch (e) {} };
+const list = document.getElementById("cols");
+let active = null;
+const rows = [];
+for (let c = 0; c < 16; c++) {
+  const keys = KEYS.filter(k => k[1] === c).sort((a, b) => a[0] - b[0]).map(k => k[4]).join(" · ");
+  const row = document.createElement("div");
+  row.className = "col"; row.tabIndex = 0;
+  row.innerHTML = `<input type="checkbox" id="done-${c}" aria-label="Column ${c} soldered"><span class="cn"><span class="sw" style="display:inline-block;vertical-align:-2px;margin-right:6px;background:${colColor(c)}"></span>C${c}</span><span class="pin">${COL_PINS[c]}</span><span class="keys">${keys}</span>`;
+  const cb = row.querySelector("input");
+  cb.checked = !!done[c]; row.classList.toggle("done", cb.checked);
+  cb.addEventListener("click", e => e.stopPropagation());
+  cb.addEventListener("change", () => { done[c] = cb.checked; row.classList.toggle("done", cb.checked); save(); });
+  const pick = () => { active = active === c ? null : c; highlight(); };
+  row.addEventListener("click", pick);
+  row.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); pick(); } });
+  list.appendChild(row); rows.push(row);
+}
+function highlight() {
+  wires.forEach((g, i) => g.setAttribute("opacity", active === null || active === i ? 1 : .12));
+  rows.forEach((r, i) => r.classList.toggle("active", active === i));
+}
+document.getElementById("reset").addEventListener("click", () => {
+  done = {}; save();
+  rows.forEach(r => { r.classList.remove("done"); r.querySelector("input").checked = false; });
+});
+document.getElementById("rows").innerHTML = ROW_PINS.map((p, i) => `<span>R${i} ${p} · ${ROW_NAMES[i]} row</span>`).join("");
+
+// Raspberry Pi Pico pinout, top view, USB up
+const PICO_L = ["GP0","GP1","GND","GP2","GP3","GP4","GP5","GND","GP6","GP7","GP8","GP9","GND","GP10","GP11","GP12","GP13","GND","GP14","GP15"]; // pins 1-20
+const PICO_R = ["VBUS","VSYS","GND","3V3_EN","3V3","VREF","GP28","GND","GP27","GP26","RUN","GP22","GND","GP21","GP20","GP19","GP18","GND","GP17","GP16"]; // pins 40-21
+const role = gp => {
+  const c = COL_PINS.indexOf(gp); if (c >= 0) return { text: "C" + c, color: colColor(c), keys: KEYS.filter(k => k[1] === c).sort((a, b) => a[0] - b[0]).map(k => k[4]).join(" · ") };
+  const r = ROW_PINS.indexOf(gp); if (r >= 0) return { text: "R" + r, color: "var(--fg)", keys: ROW_NAMES[r] + " row" };
+  return null;
+};
+const ps = document.getElementById("pico");
+const BX = 150, BW = 120, PY = 70, PS = 25;
+el("rect", { x: BX, y: 30, width: BW, height: 20 * PS + 60, rx: 8, fill: "#1f6b3a" }, ps);
+el("rect", { x: BX + BW / 2 - 18, y: 22, width: 36, height: 26, rx: 3, fill: "#b9bcc0" }, ps);
+const usb = el("text", { x: BX + BW / 2, y: 64, "text-anchor": "middle", "font-size": 10, fill: "#e8f2ea" }, ps); usb.textContent = "USB";
+const chip = el("rect", { x: BX + BW / 2 - 22, y: 280, width: 44, height: 44, rx: 3, fill: "#222" }, ps);
+const rows2 = [];
+for (let i = 0; i < 20; i++) {
+  const y = PY + i * PS + 10;
+  [[PICO_L[i], i + 1, BX + 14, "end", BX - 10], [PICO_R[i], 40 - i, BX + BW - 14, "start", BX + BW + 10]].forEach(([gp, num, px, anchor, tx]) => {
+    const ro = role(gp);
+    el("circle", { cx: px, cy: y, r: 6, fill: ro ? ro.color : "#d9c27a", stroke: "#0d3a1e", "stroke-width": 1 }, ps);
+    const n = el("text", { x: px + (anchor === "end" ? 12 : -12), y: y + 3, "text-anchor": anchor === "end" ? "start" : "end", "font-size": 8, fill: "#cfe5d5" }, ps); n.textContent = num;
+    const t = el("text", { x: tx, y: y + 4, "text-anchor": anchor, "font-size": 11, "font-weight": ro ? 600 : 400, fill: ro ? ro.color : "var(--muted)" }, ps);
+    t.textContent = ro ? (anchor === "end" ? `${ro.text}  ${gp}` : `${gp}  ${ro.text}`) : gp;
+    if (ro) rows2.push([num, gp, ro]);
+  });
+}
+rows2.sort((a, b) => a[0] - b[0]);
+document.getElementById("picotable").innerHTML = rows2.map(([n, gp, ro]) =>
+  `<tr><td>${n}</td><td>${gp}</td><td><span style="color:${ro.color};font-weight:600">${ro.text}</span> ${ro.keys}</td></tr>`).join("");
+</script>
+
+</html>

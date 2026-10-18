@@ -1,6 +1,6 @@
 {
-    "keyboard_name": "gyrofx-mml",
-    "url": "https://graystudio.site/en/works/space65r3/",
+    "keyboard_name": "gyrofx-mmlp",
+    "url": "https://www.printables.com/model/307908-mechanical-keyboard-68-key-65",
     "maintainer": "gyrofx",
     "manufacturer": "gyrofx",
     "usb": {
@@ -16,12 +16,12 @@
         "rgblight": false
     },
     "matrix_pins": {
-        "cols": ["A0", "A1", "A2", "A3", "A4", "A5", "A6", "A7", "A10", "B3", "B4", "B5", "B6", "B7", "B8", "B9"],
-        "rows": ["A8", "B15", "B14", "B13", "B12"]
+        "cols": ["GP0", "GP1", "GP2", "GP3", "GP4", "GP5", "GP6", "GP9", "GP10", "GP11", "GP12", "GP13", "GP14", "GP15", "GP16", "GP17"],
+        "rows": [ "GP18", "GP19", "GP20", "GP21", "GP22"]
     },
     "diode_direction": "COL2ROW",
-    "processor": "STM32F103",
-    "bootloader": "stm32duino",
+    "processor": "RP2040",
+    "bootloader": "rp2040",
     "layouts": {
         "LAYOUT": {
             "layout": [
