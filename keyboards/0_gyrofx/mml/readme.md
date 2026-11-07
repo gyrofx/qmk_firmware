@@ -215,8 +215,9 @@ If the firmware is broken and Fn + Esc does nothing, open the case and use the B
 
 ## Keymap
 
-* **Layer 0**: standard 65 % ANSI. Esc is Grave Escape (`QK_GESC`): Shift+Esc or GUI+Esc gives `` ` `` / `~`.
+* **Layer 0**: standard 65 % ANSI. Esc is Grave Escape (`QK_GESC`): Shift+Esc gives `~`. GUI+Esc sends GUI+`` ` `` (a window switch shortcut in GNOME), not a plain backtick.
 * **Layer 1** (hold Fn): F1–F12 on the number row, `QK_BOOT` on Esc, plus:
+  * Backspace: `` ` `` (Fn+Shift+Backspace gives `~`)
   * Q / W: Ctrl+Backspace / Ctrl+Del (delete word)
   * A / S: Ctrl+Left / Ctrl+Right (jump word)
   * F / G / H / J: PgUp / Home / End / PgDn
