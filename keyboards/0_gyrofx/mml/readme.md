@@ -218,11 +218,13 @@ If the firmware is broken and Fn + Esc does nothing, open the case and use the B
 * **Layer 0**: standard 65 % ANSI. Esc is Grave Escape (`QK_GESC`): Shift+Esc gives `~`. GUI+Esc sends GUI+`` ` `` (a window switch shortcut in GNOME), not a plain backtick.
 * **Layer 1** (hold Fn): F1–F12 on the number row, `QK_BOOT` on Esc, plus:
   * Backspace: `` ` `` (Fn+Shift+Backspace gives `~`)
-  * Q / W: Ctrl+Backspace / Ctrl+Del (delete word)
-  * A / S: Ctrl+Left / Ctrl+Right (jump word)
-  * F / G / H / J: PgUp / Home / End / PgDn
-  * Z / X: Shift+Home / Shift+End (select to start / end of line)
+  * Q / W: delete word left / right (Ctrl+Backspace / Ctrl+Del, on macOS Option+Backspace / Option+Del)
+  * A / S: jump word left / right (Ctrl+Left / Ctrl+Right, on macOS Option+Left / Option+Right)
+  * F / J: PgUp / PgDn
+  * G / H: start / end of line (Home / End, on macOS Cmd+Left / Cmd+Right)
+  * Z / X: select to start / end of line (Shift+Home / Shift+End, on macOS Shift+Cmd+Left / Shift+Cmd+Right)
   * N: NKRO toggle
+  * M: macOS / Linux switch (`CG_TOGG`): swaps Ctrl and GUI on both sides, so Cmd sits next to the space bar on macOS. Q / W / A / S / G / H / Z / X above send the macOS shortcuts while the swap is on. The setting is saved in EEPROM and survives unplugging.
 * Layers 2 and 3 are empty.
 
 ## Testing and troubleshooting
